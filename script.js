@@ -260,7 +260,39 @@ const DemoData = {
   }
 };
 
-// === 5. WEEKPLANNING MODULE ===
+// === 5. MOBIELE INDELING HELPER ===
+const MobileLayout = {
+  syncProgressOrder() {
+    const grids = document.querySelectorAll('.sport-progress-grid');
+    if (grids.length < 2) return;
+
+    const firstGrid = grids[0];
+    const secondGrid = grids[1];
+
+    const runBox = document.getElementById('runProgressText')?.closest('.progress-box');
+    const rideBox = document.getElementById('rideProgressText')?.closest('.progress-box');
+    const runLoadBox = document.getElementById('runLoadProgressText')?.closest('.progress-box');
+    const rideLoadBox = document.getElementById('rideLoadProgressText')?.closest('.progress-box');
+
+    if (!runBox || !rideBox || !runLoadBox || !rideLoadBox) return;
+
+    if (window.innerWidth <= 768) {
+      firstGrid.appendChild(runBox);
+      firstGrid.appendChild(runLoadBox);
+      firstGrid.appendChild(rideBox);
+      firstGrid.appendChild(rideLoadBox);
+      secondGrid.style.display = 'none';
+    } else {
+      secondGrid.style.display = '';
+      if (!firstGrid.contains(runBox)) firstGrid.appendChild(runBox);
+      if (!firstGrid.contains(rideBox)) firstGrid.appendChild(rideBox);
+      if (!secondGrid.contains(runLoadBox)) secondGrid.appendChild(runLoadBox);
+      if (!secondGrid.contains(rideLoadBox)) secondGrid.appendChild(rideLoadBox);
+    }
+  }
+};
+
+// === 6. WEEKPLANNING MODULE ===
 const WeekPlanner = {
   offset: 0,
   isAnimating: false,
@@ -269,6 +301,8 @@ const WeekPlanner = {
     document.getElementById('prevWeekBtn')?.addEventListener('click', () => this.changeWeek(this.offset - 1));
     document.getElementById('nextWeekBtn')?.addEventListener('click', () => this.changeWeek(this.offset + 1));
     document.getElementById('calenderHeading')?.addEventListener('click', () => this.changeWeek(0));
+    MobileLayout.syncProgressOrder();
+    window.addEventListener('resize', () => MobileLayout.syncProgressOrder());
     this.render();
   },
 
@@ -306,22 +340,19 @@ const WeekPlanner = {
     const noteInfo = Helpers.parseWeekNote(events);
     const rangeEl = document.getElementById('dateRangeLabel');
 
-    let badgeEl = document.getElementById('weekIntensityBadge');
+    let badgeEl =
+      document.getElementById('weekTypeBadge') ||
+      document.getElementById('weekIntensityBadge');
+
     if (!badgeEl && rangeEl && rangeEl.parentElement) {
       badgeEl = document.createElement('span');
-      badgeEl.id = 'weekIntensityBadge';
-      badgeEl.style.cssText = 'display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-right: 10px; vertical-align: middle;';
+      badgeEl.id = 'weekTypeBadge';
+      badgeEl.className = 'date-badge';
       rangeEl.parentElement.insertBefore(badgeEl, rangeEl);
     }
 
-    const legacyEl =
-      document.getElementById('weekTypeLabel') ||
-      document.getElementById('weekLoadLabel') ||
-      document.getElementById('weekIntensityLabel') ||
-      document.getElementById('weekNoteLabel');
-
-    if (legacyEl && legacyEl !== badgeEl) {
-      legacyEl.style.display = 'none';
+    if (badgeEl && rangeEl && rangeEl.parentElement && badgeEl.nextElementSibling !== rangeEl) {
+      rangeEl.parentElement.insertBefore(badgeEl, rangeEl);
     }
 
     if (!badgeEl) return;
@@ -331,6 +362,7 @@ const WeekPlanner = {
       badgeEl.style.color = noteInfo.color;
       badgeEl.style.backgroundColor = noteInfo.bg;
       badgeEl.style.border = `1px solid ${noteInfo.border}`;
+      badgeEl.style.marginRight = '8px';
       badgeEl.style.display = 'inline-flex';
     } else {
       badgeEl.textContent = '';
@@ -571,7 +603,7 @@ const WeekPlanner = {
   }
 };
 
-// === 6. INITIALISATIE ===
+// === 7. INITIALISATIE ===
 document.addEventListener('DOMContentLoaded', () => {
   SettingsManager.init();
   WeekPlanner.init();

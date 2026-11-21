@@ -489,3 +489,26 @@ body {
   padding-top: 0;
   border-top: none;
 }
+/* === MOBIELE WEERGAVE === */
+@media (max-width: 768px) {
+  #calendarGrid,
+  .calendar-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .day-card {
+    width: 100% !important;
+  }
+
+  .sport-progress-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .sport-progress-grid .progress-box {
+    width: 100% !important;
+  }
+}
